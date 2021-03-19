@@ -1,0 +1,16 @@
+*.m4
+*.cache
+*.o
+col3_client_etu
+compile
+config.*
+configure
+depcomp
+.deps
+.gitignore.swp
+install-sh
+Makefile
+Makefile.in
+missing
+save.txt
+stamp-h1
