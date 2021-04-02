@@ -11,15 +11,6 @@
 niveau_log NIVEAULOG=none;						// mode debug
 int NCURSE =0;						// affichage avec NCURSE
 
-char  NOMDUCLAN[TAILLE_MAX_NOM_CLAN];  	// nom du clan
-capacite_clan CAPACITECLAN;				// capacite d'extraction du clan
-hutte HUTTECLAN;					  	// hutte du clan
-
-int PORT;								// port de connexion au serveur
-int PORTBATAILLE ;						// port de connexion pour la bataille
-char ADRESSE[30];						// adresse IP du serveur
-char MONTOKEN[100];						// token unique du clan
-
 /*  programme principal du client CoL3  */
 int main(int argc, char *argv[])
 {
@@ -29,8 +20,8 @@ int main(int argc, char *argv[])
 	
 	/* --- cette zone est à modifier à l'issue du jeu --- */
 	strcpy(MONTOKEN, "IC:22:NC:4:LS:1-10-6-12-13-18-11-19-20-8-4-17-5-3-16-9-2-7");
-	strcpy(NOMDUCLAN,"25");
-	strcpy(ADRESSE, "srv1.col3.learninglab.eu");
+	strcpy(NOMDUCLAN, "25");
+	strcpy(ADRESSE, "192.168.184.12");
 	PORT = 8080;
     /* --- cette zone est à modifier à l'issue du jeu --- */
 
@@ -103,13 +94,43 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			if (pthread_mutex_init(&mutex, NULL) != 0) {
-				logClientCOL3(error, "main", "init mutex [FAIL]");
+			// Initialisation mutex lecteur/rédacteur
+			if (pthread_mutex_init(&lect, NULL) != 0) {
+				logClientCOL3(error, "main", "init mutex lect [FAIL]");
 				exit(EXIT_FAILURE);
 			}
-			recupSiteExtraction();
+			if (pthread_mutex_init(&red, NULL) != 0) {
+				logClientCOL3(error, "main", "init mutex red [FAIL]");
+				exit(EXIT_FAILURE);
+			}
+
+			// Initialisation sémaphores producteur/consommateur
+			sem_init(&plein, 0, TMP_MAX);
+			sem_init(&vide, 0, 0);
+			sem_init(&mutex, 0, 1);
+
+			// Récupération de la capacite_clan
+			CAPACITE_CLAN = recupSiteExtraction();
+			if (CAPACITE_CLAN == NULL) {
+				logClientCOL3(error, "main", "Erreur récupération capacite_clan");
+				exit(EXIT_FAILURE);
+			}
+
+			// Lecture de la hutte
+			readHutte();
+			
+			// Gestion approvisionnement (chariots)
 			gestionAppro();
-			saveHutte();
+
+			// Lance les forges
+			lanceForges();
+
+			// Initialisation de l'armée
+			ARMEE = malloc(sizeof(armee));
+			ARMEE->nbbaliste = 0;
+
+			// Lance le fils du clan
+			lanceFilsClan();
 		}
 	}
 		

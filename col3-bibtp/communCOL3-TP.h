@@ -166,6 +166,14 @@ typedef struct {
     int nbbaliste;							/* nb de baliste produite */
 } armee;
 
+typedef struct {
+    type_baliste baliste;
+    int forge;
+    int pVie;
+    time_t date;
+} baliste;
+
+
 /* structure préparatoire d'une attaque (recu par chaque clan avant attaque) 
    a recevoir par le serveur */
 typedef struct {
@@ -284,7 +292,8 @@ int lireMessageCOL3_s(int sock, char * msgrecu);
 
 
 /**
-    cette fonction lit une structure (mastructure) sur la socket (sock) et
+    cette fonction
+	 lit une structure (mastructure) sur la socket (sock) et
     retourne le nb octet recu (version securisé)
 	
 	entrées : 

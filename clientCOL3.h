@@ -2,17 +2,31 @@
 #define CLIENTCOL3_H_INCLUDED
 
 #include <pthread.h>
+#include <semaphore.h>
+#include <stdbool.h>
 #include "col3-bibtp/communCOL3-TP.h"
 
+char NOMDUCLAN[TAILLE_MAX_NOM_CLAN]; // nom du clan
 
-extern hutte HUTTECLAN;
-extern capacite_clan CAPACITECLAN;
+int PORT;           // port de connexion au serveur
+int PORTBATAILLE;   // port de connexion pour la bataille
+char ADRESSE[30];   // adresse IP du serveur
+char MONTOKEN[100]; // token unique du clan
 
-pthread_mutex_t mutex;
+capacite_clan *CAPACITE_CLAN;
+hutte *HUTTE;
+armee *ARMEE;
 
-void recupSiteExtraction();
+pthread_mutex_t lect,red;
+sem_t plein, vide, mutex;
+
+baliste *buffer[TMP_MAX];
+
+capacite_clan* recupSiteExtraction();
 void gestionAppro();
 void saveHutte();
-capacite_clan *connexionGetCapacite(const char *adresse, int port, const char *token, const char *clan);
+void readHutte();
+void lanceForges();
+void lanceFilsClan();
 
 #endif // CLIENTCOL3_H_INCLUDED
